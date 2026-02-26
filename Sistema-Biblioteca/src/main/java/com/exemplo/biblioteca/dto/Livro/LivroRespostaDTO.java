@@ -1,4 +1,4 @@
-package com.exemplo.biblioteca.dto_livro;
+package com.exemplo.biblioteca.dto.Livro;
 
 public record LivroRespostaDTO (
         Long id,

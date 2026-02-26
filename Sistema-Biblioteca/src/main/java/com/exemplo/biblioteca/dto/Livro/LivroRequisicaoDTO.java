@@ -1,7 +1,6 @@
-package com.exemplo.biblioteca.dto_livro;
+package com.exemplo.biblioteca.dto.Livro;
 
 public record LivroRequisicaoDTO (
-            Long id,
             String titulo,
             String autor,
             int anoPublicacao
