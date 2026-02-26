@@ -1,4 +1,4 @@
-package com.exemplo.biblioteca.dto_emprestimo;
+package com.exemplo.biblioteca.dto.Emprestimo;
 
 import java.time.LocalDate;
 
