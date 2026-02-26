@@ -1,4 +1,4 @@
-package com.exemplo.biblioteca.dto_usuario;
+package com.exemplo.biblioteca.dto.Usuario;
 
 public record UsuarioRequisicaoDTO (
      String nome,

@@ -1,7 +1,7 @@
-package com.exemplo.biblioteca.dto_usuario;
+package com.exemplo.biblioteca.dto.Usuario;
 
 public record UsuarioRespostaDTO(
-         int id,
+         Long id,
          String nome,
          String email
 ) {}
