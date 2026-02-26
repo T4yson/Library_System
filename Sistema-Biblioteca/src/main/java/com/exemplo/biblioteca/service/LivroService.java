@@ -1,68 +1,102 @@
 package com.exemplo.biblioteca.service;
 
-import com.exemplo.biblioteca.Conexao;
+import com.exemplo.biblioteca.dto.Livro.LivroRequisicaoDTO;
+import com.exemplo.biblioteca.dto.Livro.LivroRespostaDTO;
+import com.exemplo.biblioteca.utils.Conexao;
 import com.exemplo.biblioteca.dao.LivroDAO;
 import com.exemplo.biblioteca.model.Livro;
+import org.springframework.stereotype.Service;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
+@Service
 public class LivroService {
 
     LivroDAO livroDAO = new LivroDAO();
 
-    public Livro criarLivro(Livro livro) {
+    public LivroRespostaDTO criarLivro(LivroRespostaDTO dto) {
 
-        if (livro.getTitulo() == null || livro.getTitulo().trim().isEmpty()) {
-            throw  new RuntimeException("O título do livro é obrigatório");
-
-            }
-        if (livro.getAutor() == null || livro.getAutor().trim().isEmpty()) {
-            throw new RuntimeException("O autor é obrigatório");
-        }
         try (Connection conn = Conexao.connection()) {
+
+            Livro livro = new Livro();
+            livro.setTitulo(dto.titulo());
+            livro.setAutor(dto.autor());
+            livro.setAnoPublicacao(dto.anoPublicacao());
+
             livroDAO.criarLivro(conn, livro);
-            System.out.println("Livro cadastrado com sucesso!");
+
+            return new LivroRespostaDTO(livro.getId(), livro.getTitulo(), livro.getAutor(), livro.getAnoPublicacao());
+
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao salvar livro no banco de dados", e);
+            throw new RuntimeException("Erro ao cadastrar livro: " + e.getMessage(), e);
         }
-        return livro;
     }
 
-    public Livro buscarPorId(Long id) {
-           try (Connection conn = Conexao.connection()) {
-               return livroDAO.buscarPorId(conn, id);
-           } catch (SQLException e) {
-               throw new RuntimeException("Erro ao buscar livro", e);
-           }
-    }
-    public List<Livro> buscarTodos() {
+    public List<LivroRespostaDTO> buscarTodos() {
         try (Connection conn = Conexao.connection()) {
-            return livroDAO.buscarTodos(conn);
+            List<Livro> livros = livroDAO.buscarTodos(conn);
+            List<LivroRespostaDTO> lista = new ArrayList<>();
+
+            for (Livro livro : livros) {
+                lista.add(new LivroRespostaDTO(
+                        livro.getId(),
+                        livro.getTitulo(),
+                        livro.getAutor(),
+                        livro.getAnoPublicacao()
+                ));
+            }
+            return lista;
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao listar", e);
+            throw new RuntimeException("Erro ao listar livros" + e.getMessage(), e);
         }
     }
 
-    public void atualizar (Livro livro) {
-        if (livro.getId() == null) {
-            throw new RuntimeException("O ID do livro é obrigatório");
-        }
+    public LivroRespostaDTO buscarPorId(Long id) {
         try (Connection conn = Conexao.connection()) {
-            livroDAO.atualizar(conn, livro);
-            System.out.println("Livro Atualizado com sucesso!");
-        }catch (SQLException e) {
-            throw new RuntimeException("Erro ao atualizar livro", e);
+            Livro livro = livroDAO.buscarPorId(conn, id);
+
+            if (livro == null) {
+                return null;
+            }
+            return new LivroRespostaDTO(livro.getId(), livro.getTitulo(), livro.getAutor(), livro.getAnoPublicacao());
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao buscar por Id" + e.getMessage(), e);
         }
     }
 
-    public void deletar (Long id) {
+    public LivroRespostaDTO atualizar(Long id, LivroRequisicaoDTO dto) {
+        try (Connection conn = Conexao.connection()) {
+            Livro livroExistente = livroDAO.buscarPorId(conn, id);
+
+            if (livroExistente == null) {
+                throw new RuntimeException("Livro não encontrado!");
+            }
+
+            livroExistente.setTitulo(dto.titulo());
+            livroExistente.setAutor(dto.autor());
+            livroExistente.setAnoPublicacao(dto.anoPublicacao());
+
+            livroDAO.atualizar(conn, livroExistente);
+
+            return new LivroRespostaDTO(
+                    livroExistente.getId(),
+                    livroExistente.getTitulo(),
+                    livroExistente.getAutor(),
+                    livroExistente.getAnoPublicacao()
+            );
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao atualizar livro:" + e.getMessage(), e);
+        }
+    }
+
+    public void deletar(Long id) {
         try (Connection conn = Conexao.connection()) {
             livroDAO.deletar(conn, id);
-            System.out.println("Livro deletado com sucesso!");
-        }catch (SQLException e) {
-            throw new RuntimeException ("Erro ao deletar livro", e);
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao deletar: " + e.getMessage(), e);
         }
     }
 }
