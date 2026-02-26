@@ -45,7 +45,7 @@ public class LivroService {
         }
     }
 
-    public void atualizar (Livro livro) throws SQLException {
+    public void atualizar (Livro livro) {
         if (livro.getId() == null) {
             throw new RuntimeException("O ID do livro é obrigatório");
         }
@@ -57,7 +57,7 @@ public class LivroService {
         }
     }
 
-    public void deletar (Long id) throws SQLException {
+    public void deletar (Long id) {
         try (Connection conn = Conexao.connection()) {
             livroDAO.deletar(conn, id);
             System.out.println("Livro deletado com sucesso!");
